@@ -6,7 +6,7 @@
 
 <style lang="scss">
 @import '@/assets/stylesheets/main.scss';
-@import '@/assets/stylesheets/variables.scss';
+
 
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
