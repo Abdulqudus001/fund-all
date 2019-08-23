@@ -4,7 +4,7 @@
       <img src="@/assets/images/main-logo.svg" alt="Fundall Logo">
       <div class="welcome__greeting">
         <img src="@/assets/images/login-img.svg" alt="BG-image">
-        <p class="title">
+        <p class="welcome__title">
           <router-link to="/">Welcome back!</router-link>
           We miss you.
         </p>
@@ -14,16 +14,34 @@
       <div class="card">
         <p class="greet greet--bg">Holla</p>
         <p class="greet">Sign in to the vibe!</p>
+        <v-alert
+          v-model="showAlert"
+          dismissible
+          :type="type"
+          class="alert"
+        >
+          {{ alertMessage }}
+        </v-alert>
         <v-layout wrap>
           <v-flex sm12 class="card__input">
-            <input type="text" name="username" id="username" placeholder="Enter email or username">
+            <input
+              v-model="username"
+              type="text"
+              name="username"
+              id="username"
+              placeholder="Enter email or username" />
             <label for="username">Email or Username</label>
           </v-flex>
           <v-flex sm12 class="card__input">
-            <input type="password" name="password" id="password" placeholder="Enter Password">
+            <input
+              v-model="password"
+              type="password"
+              name="password"
+              id="password"
+              placeholder="Enter Password" />
             <label for="password">Password</label>
           </v-flex>
-          <v-flex sm12>
+          <v-flex @click="login()" sm12>
             <Button>Login</Button>
           </v-flex>
           <p>
@@ -42,10 +60,31 @@
 </template>
 
 <script>
-import Button from '@/components/button.vue'
+import Button from '@/components/button.vue';
+
 export default {
   components: {
     Button,
+  },
+  data: () => ({
+    username: '',
+    password: '',
+    showAlert: true,
+    type: 'error',
+    alertMessage: 'Test alert',
+  }),
+  methods: {
+    login() {
+      this.axios.post('/login', {
+        email: this.username,
+        password: this.password,
+      }).then((res) => {
+        const { user } = res.data.success;
+        this.$cookies.set('api_token', user.access_token, -1);
+      }).catch((error) => {
+        console.log(error);
+      });
+    },
   },
 };
 </script>
@@ -80,6 +119,7 @@ export default {
       width: 592px;
       max-width: 100%;
       margin: 0 auto;
+      position: relative;
       @include lg() {
         padding: 20px 50px 0;
       }
@@ -96,7 +136,7 @@ export default {
         }
       }
       .layout.wrap {
-        padding: 30px;
+        padding: 30px 30px 0;
         justify-content: center;
         p {
           text-align: center;
@@ -147,14 +187,14 @@ export default {
         left: 0;
         right: 0;
         bottom: 60px;
-        .title, .subtitle {
+        .welcome__title, .subtitle {
           width: 60%;
           margin: 0 auto;
           text-align: left;
           color: #000;
           font-weight: bold;
         }
-        .title {
+        .welcome__title {
           font-size: 35px;
           margin-top: 20px;
         }
@@ -179,5 +219,12 @@ export default {
         padding-bottom: 30px;
       }
     }
+  }
+  .alert {
+    position: absolute;
+    z-index: 1;
+    top: 130px;
+    left: 80px;
+    right: 80px;
   }
 </style>

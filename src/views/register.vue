@@ -18,26 +18,51 @@
       <div class="card">
         <v-layout wrap>
           <v-flex xs12 sm6 md6 class="card__input">
-            <input type="text" name="f_name" id="f_name" placeholder="Enter First Name">
+            <input
+              v-model="firstName"
+              type="text"
+              name="f_name"
+              id="f_name"
+              placeholder="Enter First Name" />
             <label for="f_name">First Name</label>
           </v-flex>
           <v-flex xs12 sm6 md6 class="card__input">
-            <input type="text" name="l_name" id="l_name" placeholder="Enter Last Name">
+            <input
+              v-model="lastName"
+              type="text"
+              name="l_name"
+              id="l_name"
+              placeholder="Enter Last Name" />
             <label for="l_name">Last Name</label>
           </v-flex>
           <v-flex sm12 class="card__input">
-            <input type="email" name="email" id="email" placeholder="Enter Email">
+            <input
+              v-model="email"
+              type="email"
+              name="email"
+              id="email"
+              placeholder="Enter Email" />
             <label for="email">Enter address</label>
           </v-flex>
           <v-flex sm12 class="card__input">
-            <input type="password" name="password" id="password" placeholder="Enter Password">
+            <input
+              v-model="password"
+              type="password"
+              name="password"
+              id="password"
+              placeholder="Enter Password" />
             <label for="password">Password</label>
           </v-flex>
           <v-flex sm12 class="card__input">
-            <input type="password" name="c-password" id="c-password" placeholder="Confirm Password">
+            <input
+              v-model="cPassword"
+              type="password"
+              name="c-password"
+              id="c-password"
+              placeholder="Confirm Password" />
             <label for="c-password">Confirm Password</label>
           </v-flex>
-          <v-flex sm12>
+          <v-flex @click="register()" sm12>
             <Button>Sign up</Button>
           </v-flex>
           <p>
@@ -56,10 +81,33 @@
 </template>
 
 <script>
-import Button from '@/components/button.vue'
+import Button from '@/components/button.vue';
+
 export default {
   components: {
     Button,
+  },
+  data: () => ({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    cPassword: '',
+  }),
+  methods: {
+    register() {
+      this.axios.post('/register', {
+        firstname: this.firstName,
+        lastname: this.lastName,
+        email: this.email,
+        password: this.password,
+        password_confirmation: this.cPassword,
+      }).then((res) => {
+        console.log(res);
+      }).catch((error) => {
+        console.log(error.response);
+      });
+    },
   },
 };
 </script>
