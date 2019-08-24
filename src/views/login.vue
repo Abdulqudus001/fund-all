@@ -117,7 +117,7 @@ export default {
       }).catch((error) => {
         this.showAlert = true;
         this.type = 'error';
-        this.alertMessage = response.data.error.message;
+        this.alertMessage = 'Incorrect username of password';
         this.isLoading = false;
       });
     },
