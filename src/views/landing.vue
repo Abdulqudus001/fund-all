@@ -82,7 +82,7 @@ export default {
         text-transform: uppercase;
         font-size: 18px;
         text-decoration: none;
-        color: #000;
+        color: #000 !important;
         font-weight: bold;
         &--button {
           background: $green;

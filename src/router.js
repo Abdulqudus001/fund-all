@@ -7,7 +7,7 @@ import Home from './views/home.vue';
 
 Vue.use(Router);
 
-export default new Router({
+const router = new Router({
   routes: [
     {
       path: '/',
@@ -28,6 +28,23 @@ export default new Router({
       path: '/home',
       name: 'Home',
       component: Home,
+      meta: {
+        requiresAuth: true,
+      },
     },
   ],
 });
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (window.$cookies.get('api_token') == null) {
+      router.push('/login');
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
+});
+
+export default router;

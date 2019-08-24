@@ -4,7 +4,7 @@
       <img src="@/assets/images/main-logo.svg" alt="Fundall Logo">
       <div class="welcome__greeting">
         <img src="@/assets/images/register-img.svg" alt="BG-image">
-        <p class="title">
+        <p class="welcome__title">
           <router-link to="/">Welcome!</router-link>
           Let’s get to know you.
         </p>
@@ -16,55 +16,93 @@
     </div>
     <div>
       <div class="card">
+        <v-alert
+          v-model="showAlert"
+          dismissible
+          :type="type"
+          class="alert"
+          transition="scale-transition"
+        >
+          {{ alertMessage }}
+        </v-alert>
         <v-layout wrap>
-          <v-flex xs12 sm6 md6 class="card__input">
-            <input
-              v-model="firstName"
-              type="text"
-              name="f_name"
-              id="f_name"
-              placeholder="Enter First Name" />
-            <label for="f_name">First Name</label>
-          </v-flex>
-          <v-flex xs12 sm6 md6 class="card__input">
-            <input
-              v-model="lastName"
-              type="text"
-              name="l_name"
-              id="l_name"
-              placeholder="Enter Last Name" />
-            <label for="l_name">Last Name</label>
-          </v-flex>
-          <v-flex sm12 class="card__input">
-            <input
-              v-model="email"
-              type="email"
-              name="email"
-              id="email"
-              placeholder="Enter Email" />
-            <label for="email">Enter address</label>
-          </v-flex>
-          <v-flex sm12 class="card__input">
-            <input
-              v-model="password"
-              type="password"
-              name="password"
-              id="password"
-              placeholder="Enter Password" />
-            <label for="password">Password</label>
-          </v-flex>
-          <v-flex sm12 class="card__input">
-            <input
-              v-model="cPassword"
-              type="password"
-              name="c-password"
-              id="c-password"
-              placeholder="Confirm Password" />
-            <label for="c-password">Confirm Password</label>
-          </v-flex>
-          <v-flex @click="register()" sm12>
-            <Button>Sign up</Button>
-          </v-flex>
+          <form @submit.prevent="register()" autocomplete="on">
+            <v-layout wrap>
+            <v-flex xs12 sm6 md6 class="card__input">
+              <input
+                v-model="firstName"
+                type="text"
+                name="first name"
+                id="first name"
+                required
+                v-validate="'alpha'"
+                placeholder="Enter First Name" />
+              <label for="first name">First Name</label>
+              <span>{{ errors.first('first name') }}</span>
+            </v-flex>
+            <v-flex xs12 sm6 md6 class="card__input">
+              <input
+                v-model="lastName"
+                type="text"
+                name="last name"
+                id="last name"
+                required
+                v-validate="'alpha'"
+                placeholder="Enter Last Name" />
+              <label for="last name">Last Name</label>
+              <span>{{ errors.first('last name') }}</span>
+            </v-flex>
+            <v-flex sm12 class="card__input">
+              <input
+                v-model="email"
+                type="email"
+                name="email"
+                id="email"
+                required
+                v-validate="'email'"
+                placeholder="Enter Email" />
+              <label for="email">Enter address</label>
+              <span>{{ errors.first('email') }}</span>
+            </v-flex>
+            <v-flex sm12 class="card__input">
+              <input
+                v-model="password"
+                type="password"
+                name="password"
+                id="password"
+                required
+                autocomplete="on"
+                v-validate="'min:6'"
+                ref="password"
+                placeholder="Enter Password" />
+              <label for="password">Password</label>
+              <span>{{ errors.first('password') }}</span>
+            </v-flex>
+            <v-flex sm12 class="card__input">
+              <input
+                v-model="cPassword"
+                type="password"
+                name="confirm-password"
+                id="confirm-password"
+                required
+                autocomplete="on"
+                v-validate="'min:6|confirmed:password'"
+                placeholder="Confirm Password" />
+              <label for="confirm-password">Confirm Password</label>
+              <span>{{ errors.first('confirm-password') }}</span>
+            </v-flex>
+            <v-flex @click="register()" sm12>
+              <Button>
+                <img
+                  v-show="isLoading"
+                  src="@/assets/images/loader.svg"
+                  alt="Loading..."
+                />
+                <p v-show="!isLoading">Sign up</p>
+              </Button>
+            </v-flex>
+            </v-layout>
+          </form>
           <p>
             Already have an account?
             <router-link to="/login">Login Here</router-link>
@@ -93,9 +131,14 @@ export default {
     email: '',
     password: '',
     cPassword: '',
+    isLoading: false,
+    showAlert: false,
+    alertMessage: 'Default message',
+    type: 'success',
   }),
   methods: {
     register() {
+      this.isLoading = true;
       this.axios.post('/register', {
         firstname: this.firstName,
         lastname: this.lastName,
@@ -104,8 +147,17 @@ export default {
         password_confirmation: this.cPassword,
       }).then((res) => {
         console.log(res);
+        this.isLoading = false;
+        // eslint-disable-next-line
+        this.$router.push('home').catch((err) => {});
       }).catch((error) => {
-        console.log(error.response);
+        const { response } = error;
+        if (response.status === 400) {
+          this.showAlert = true;
+          this.type = 'error';
+          this.alertMessage = response.data.error.message;
+        }
+        this.isLoading = false;
       });
     },
   },
@@ -115,6 +167,9 @@ export default {
 <style lang="scss" scoped>
 @import '@/assets/stylesheets/variables.scss';
 @import '@/assets/stylesheets/mixins.scss';
+  form {
+    padding: 30px;
+  }
   .register {
     padding: 34px 20px;
     display: flex;
@@ -142,11 +197,12 @@ export default {
       width: 592px;
       max-width: 100%;
       margin: 0 auto;
+      position: relative;
       @include lg() {
         padding: 0px 50px;
       }
       .layout.wrap {
-        padding: 30px;
+        // padding: 30px;
         justify-content: center;
         p {
           text-align: center;
@@ -197,14 +253,14 @@ export default {
         left: 0;
         right: 0;
         bottom: 60px;
-        .title, .subtitle {
+        .welcome__title, .subtitle {
           width: 60%;
           margin: 0 auto;
           text-align: left;
           color: #000;
           font-weight: bold;
         }
-        .title {
+        .welcome__title {
           font-size: 35px;
           margin-top: 20px;
         }
@@ -227,6 +283,19 @@ export default {
         text-align: center;
         margin: 15px auto 0;
       }
+    }
+  }
+  .alert {
+    position: absolute;
+    z-index: 1;
+    top: 10px;
+    left: 0px;
+    right: 0px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    @include mdl() {
+      left: 80px;
+      right: 80px;
     }
   }
 </style>

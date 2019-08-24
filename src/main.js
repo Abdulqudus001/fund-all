@@ -2,6 +2,7 @@ import Vue from 'vue';
 import VueCookies from 'vue-cookies';
 import axios from 'axios';
 import VueAxios from 'vue-axios';
+import VeeValidate from 'vee-validate';
 import App from './App.vue';
 import router from './router';
 import vuetify from '@/plugins/vuetify';
@@ -9,6 +10,15 @@ import './registerServiceWorker';
 
 Vue.config.productionTip = false;
 
+// Registering Components
+Vue.use(VeeValidate, {
+  classes: true,
+  classNames: {
+    valid: '',
+    invalid: 'invalid',
+  },
+  useConstraintAttrs: false,
+});
 Vue.use(VueCookies);
 
 // Axios global config

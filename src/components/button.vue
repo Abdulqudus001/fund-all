@@ -14,5 +14,8 @@
     padding: 18px 0;
     text-transform: uppercase;
     font-weight: bold;
+    p {
+      margin: 0;
+    }
   }
 </style>

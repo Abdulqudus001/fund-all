@@ -19,31 +19,53 @@
           dismissible
           :type="type"
           class="alert"
+          transition="scale-transition"
         >
           {{ alertMessage }}
         </v-alert>
         <v-layout wrap>
-          <v-flex sm12 class="card__input">
-            <input
-              v-model="username"
-              type="text"
-              name="username"
-              id="username"
-              placeholder="Enter email or username" />
-            <label for="username">Email or Username</label>
-          </v-flex>
-          <v-flex sm12 class="card__input">
-            <input
-              v-model="password"
-              type="password"
-              name="password"
-              id="password"
-              placeholder="Enter Password" />
-            <label for="password">Password</label>
-          </v-flex>
-          <v-flex @click="login()" sm12>
-            <Button>Login</Button>
-          </v-flex>
+          <form @submit.stop.prevent="login()">
+            <v-flex sm12 class="card__input">
+              <input
+                v-model="username"
+                type="text"
+                name="username"
+                id="username"
+                autocomplete="on"
+                v-validate="'required|email'"
+                placeholder="Enter email or username" />
+              <label for="username">Email or Username</label>
+              <span>{{ errors.first('username') }}</span>
+            </v-flex>
+            <v-flex sm12 class="card__input">
+              <input
+                v-model="password"
+                type="password"
+                name="password"
+                id="password"
+                autocomplete="on"
+                v-validate="'required|min:6'"
+                placeholder="Enter Password" />
+              <label for="password">Password</label>
+              <span>{{ errors.first('password') }}</span>
+            </v-flex>
+            <v-flex sm12>
+              <v-checkbox
+                v-model="rememberMe"
+                label="Remember me"
+              ></v-checkbox>
+            </v-flex>
+            <v-flex @click="login()" sm12>
+              <Button>
+                <img
+                  v-show="isLoading"
+                  src="@/assets/images/loader.svg"
+                  alt="Loading..."
+                />
+                <p v-show="!isLoading">Login</p>
+              </Button>
+            </v-flex>
+          </form>
           <p>
             Don't have an account?
             <router-link to="/register">Register Here</router-link>
@@ -69,20 +91,37 @@ export default {
   data: () => ({
     username: '',
     password: '',
-    showAlert: true,
-    type: 'error',
+    showAlert: false,
+    type: 'success',
     alertMessage: 'Test alert',
+    isLoading: false,
+    rememberMe: false,
   }),
   methods: {
     login() {
+      this.isLoading = true;
       this.axios.post('/login', {
         email: this.username,
         password: this.password,
       }).then((res) => {
         const { user } = res.data.success;
-        this.$cookies.set('api_token', user.access_token, -1);
+        if (this.rememberMe) {
+          this.$cookies.set('api_token', user.access_token, -1);
+        } else {
+          this.$cookies.set('api_token', user.access_token, '1d');
+        }
+        this.axios.default.headers.common.Authorization = user.access_token;
+        this.isLoading = false;
+        // eslint-disable-next-line
+        this.$router.push('home').catch((err) => {});
       }).catch((error) => {
-        console.log(error);
+        const { response } = error;
+        if (response.status === 400) {
+          this.showAlert = true;
+          this.type = 'error';
+          this.alertMessage = response.data.error.message;
+        }
+        this.isLoading = false;
       });
     },
   },
@@ -165,6 +204,15 @@ export default {
         input:focus + label {
           color: $green;
         }
+        .invalid {
+          border: 1px solid red;
+        }
+        .invalid:focus {
+          border: 1px solid red;
+        }
+        .invalid:focus + label{
+          color: red;
+        }
       }
     }
     .welcome {
@@ -223,8 +271,15 @@ export default {
   .alert {
     position: absolute;
     z-index: 1;
-    top: 130px;
-    left: 80px;
-    right: 80px;
+    top: 100px;
+    left: 0px;
+    right: 0px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    @include mdl() {
+      top: 130px;
+      left: 80px;
+      right: 80px;
+    }
   }
 </style>
