@@ -37,6 +37,7 @@
         <v-data-table
           :headers="headers"
           :items="data"
+          :items-per-page="3"
           item-key="name"
           class="elevation-1"
         >
