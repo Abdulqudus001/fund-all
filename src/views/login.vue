@@ -115,12 +115,9 @@ export default {
         // eslint-disable-next-line
         this.$router.push('home').catch((err) => {});
       }).catch((error) => {
-        const { response } = error;
-        if (response.status === 400) {
-          this.showAlert = true;
-          this.type = 'error';
-          this.alertMessage = response.data.error.message;
-        }
+        this.showAlert = true;
+        this.type = 'error';
+        this.alertMessage = response.data.error.message;
         this.isLoading = false;
       });
     },
