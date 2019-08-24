@@ -145,11 +145,12 @@ export default {
         email: this.email,
         password: this.password,
         password_confirmation: this.cPassword,
-      }).then((res) => {
-        console.log(res);
-        this.isLoading = false;
         // eslint-disable-next-line
-        this.$router.push('home').catch((err) => {});
+      }).then((res) => {
+        this.isLoading = false;
+        this.$router.push('home').catch((err) => {
+          console.error(err);
+        });
       }).catch((error) => {
         const { response } = error;
         if (response.status === 400) {

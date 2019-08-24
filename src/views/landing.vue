@@ -138,10 +138,10 @@ export default {
           font-size: 40px;
         }
         &__title {
-          margin-bottom: 45px;
+          margin-bottom: 30px;
         }
         &__subtitle {
-          margin-bottom: 54px;
+          margin-bottom: 35px;
         }
         &__footer {
           font-size: 24px

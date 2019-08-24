@@ -110,11 +110,12 @@ export default {
         } else {
           this.$cookies.set('api_token', user.access_token, '1d');
         }
-        this.axios.default.headers.common.Authorization = user.access_token;
+        this.axios.defaults.headers.common.Authorization = `Bearer ${user.access_token}`;
         this.isLoading = false;
         // eslint-disable-next-line
         this.$router.push('home').catch((err) => {});
       }).catch((error) => {
+        console.log(error);
         this.showAlert = true;
         this.type = 'error';
         this.alertMessage = 'Incorrect username of password';
